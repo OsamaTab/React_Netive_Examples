@@ -18,12 +18,15 @@
     ],
     "ios": {
       "supportsTablet": true
+      
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      
+      },
+      "package": "com.darkiisouls.Review"
     },
     "web": {
       "favicon": "./assets/favicon.png"
