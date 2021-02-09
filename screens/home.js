@@ -87,6 +87,7 @@ export default function Home({ navigation }) {
                     }}
                     style={styles.sliderImage}
                   />
+                  
                 </View>
                 <View style={styles.slide}>
                   <Image
