@@ -10,11 +10,12 @@ import {
   ActivityIndicator,
   RefreshControl,
   Dimensions,
+  ScrollView
 } from "react-native";
 import Swiper from "react-native-swiper";
 import { Title, Paragraph, useTheme, Text } from "react-native-paper";
 import SkeletonPlaceholder from "react-native-skeleton-placeholder";
-import { ScrollView } from "react-native-gesture-handler";
+import * as axios from 'axios';
 
 const movieUrl = "https://reactnative.dev/movies.json";
 
@@ -24,7 +25,6 @@ export default function Home({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    searchRandomUser();
     onRefresh();
   }, []);
 
@@ -34,15 +34,28 @@ export default function Home({ navigation }) {
   };
 
   const searchRandomUser = async () => {
-    await fetch(movieUrl)
-      .then((response) => response.json())
-      .then((jsonResponse) => {
-        setRefreshing(false), setData(jsonResponse.movies);
+    await axios.get(movieUrl)
+      .then((response) => setData(response.data.movies))
+      .then(() => {
+        setTimeout(() => {
+          setRefreshing(false)
+        }, 1000);
       })
       .catch((error) => alert(error));
   };
+  // const searchRandomUser = async () => {
+  //   await fetch(movieUrl)
+  //     .then((response) => response.json())
+  //     .then((jsonResponse) => {
+  //       setTimeout(() => {
+  //         setRefreshing(false)
+  //       }, 1000);
+  //       setData(jsonResponse.movies);
+  //     })
+  //     .catch((error) => alert(error));
+  // };
   return (
-    <SafeAreaView style={{ backgroundColor: color.surface }}>
+    <SafeAreaView style={{flex:1, backgroundColor: color.surface }}>
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -87,7 +100,6 @@ export default function Home({ navigation }) {
                     }}
                     style={styles.sliderImage}
                   />
-                  
                 </View>
                 <View style={styles.slide}>
                   <Image
@@ -140,6 +152,7 @@ export default function Home({ navigation }) {
                         height: "100%",
                         width: "100%",
                         borderRadius: 8,
+                        backgroundColor:'#333'
                       }}
                     />
                     <Title>{item.title}</Title>
@@ -167,6 +180,7 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "100%",
     borderRadius: 8,
+    backgroundColor:"#333"
   },
   slide: {
     flex: 1,

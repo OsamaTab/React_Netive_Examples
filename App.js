@@ -4,68 +4,94 @@ import { StatusBar, StyleSheet, View, Image } from "react-native";
 import * as LocalAuthentication from "expo-local-authentication";
 import AnimatedLoader from "react-native-animated-loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LogBox } from 'react-native';
+import * as firebase from "firebase";
+import {Provider} from 'react-redux';
+import {createStore,applyMiddleware} from 'redux';
+import rootReduser from './redux/reduser';
+import thunk from 'redux-thunk'
+
+const store = createStore(rootReduser , applyMiddleware(thunk));
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAoWYt8s9XNpupk7EWVOdFowDuhQPvF6aI",
+  authDomain: "testing-react-native-b1722.firebaseapp.com",
+  projectId: "testing-react-native-b1722",
+  storageBucket: "testing-react-native-b1722.appspot.com",
+  messagingSenderId: "456598717335",
+  appId: "1:456598717335:web:85e67e5d11ca4df8a9bad2",
+  measurementId: "G-F0WM02JBN4",
+};
+
+if (firebase.apps.length === 0) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+LogBox.ignoreLogs(['Setting a timer']);
 
 export default function App() {
   const [Visible, setVisible] = useState(true);
   const [Auth, setAuth] = useState(false);
-  
-  const gitBiometricAuth = async () =>{
-    await AsyncStorage.getItem("biometric", (err, value) => {
-      if (err) {
-        console.log(err);
-      } else {
-        setAuth(JSON.parse(value));
-      }
-    });
-  }
-  useEffect(() => {
-    gitBiometricAuth()
-    Hide_Splash_Screen()
-    biometricAuth()
-  }, [Auth]);
 
-  const Hide_Splash_Screen = () => {
-    setTimeout(() => {
-      setVisible(false);
-    }, 1000);
-  };
+  useEffect(() => {
+    gitBiometricAuth();
+    if (Auth) {
+      biometricAuth();
+    }
+    else{
+      setTimeout(() => {
+        setVisible(false);
+      }, 1000);
+    }
+  }, [Auth]);
 
   const biometricHandeler = async () => {
     setAuth(!Auth);
     try {
-      await AsyncStorage.setItem(
-        "biometric",
-        JSON.stringify(!Auth)
-      );
+      await AsyncStorage.setItem("biometric", JSON.stringify(!Auth));
     } catch (e) {
       console.log("error1");
     }
   };
 
-  const biometricAuth =() =>{
-    console.log(Auth);
-     if (Auth) {
-      if (LocalAuthentication.hasHardwareAsync()) {
-        LocalAuthentication.authenticateAsync({
-          promptMessage: "               Inter Your FingerPrint",
-        });
+  const gitBiometricAuth = async () => {
+    await AsyncStorage.getItem("biometric", (err, value) => {
+      if (err) {
+        console.log(err);
+      } else{
+         setAuth(JSON.parse(value));
       }
-    }
-  }
+    });
+  };
+
+  const biometricAuth = async () => {
+      if (LocalAuthentication.hasHardwareAsync()) {
+        setVisible(true);
+        const mes = await LocalAuthentication.authenticateAsync();
+        if (!mes.success) {
+          biometricAuth();
+        } else {
+          setVisible(false);
+        }
+      }
+  };
+
   return (
-    <View style={{flex:1}}>
-      {Visible ? (
-        <AnimatedLoader
-          visible={Visible}
-          overlayColor='"rgba(255,255,255,0.75)"'
-          source={require("./assets/loader.json")}
-          animationStyle={styles.lottie}
-          speed={1}
-        ></AnimatedLoader>
-      ) : (
-        <Navigation isAuth={Auth} biometricHandeler={biometricHandeler} />
-      )}
-    </View>
+    <Provider store= {store}>
+      <View style={{ flex: 1 }}>
+        {Visible ? (
+          <AnimatedLoader
+            visible={Visible}
+            overlayColor='"rgba(255,255,255,0.75)"'
+            source={require("./assets/loader.json")}
+            animationStyle={styles.lottie}
+            speed={1}
+          ></AnimatedLoader>
+        ) : (
+          <Navigation isAuth={Auth} biometricHandeler={biometricHandeler} />
+        )}
+      </View>
+    </Provider>
   );
 }
 

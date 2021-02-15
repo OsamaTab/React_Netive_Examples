@@ -5,7 +5,6 @@ import {
   Avatar,
   Title,
   Caption,
-  Paragraph,
   Drawer,
   TouchableRipple,
   Switch,
@@ -13,9 +12,13 @@ import {
 } from "react-native-paper";
 import { DrawerItem, DrawerContentScrollView } from "@react-navigation/drawer";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { SIGNOUT } from "../redux/action";
+import{useDispatch} from 'react-redux'
 
 export function DrawerContent(props) {
   const paperTheme = useTheme();
+
+  const dispatch = useDispatch()
 
   return (
     <View style={{ flex: 1 }}>
@@ -49,7 +52,7 @@ export function DrawerContent(props) {
                 <Icon name="account-outline" size={size} color={color} />
               )}
               label="Profile"
-              onPress={console.log("fdstt")}
+              
             ></DrawerItem>
            
           </Drawer.Section>
@@ -81,7 +84,7 @@ export function DrawerContent(props) {
             <Icon name="exit-to-app" size={size} color={color} />
           )}
           label="Sign out"
-          onPress={console.log("fdsfff")}
+          onPress={()=>dispatch(SIGNOUT())}
         ></DrawerItem>
       </Drawer.Section>
     </View>
